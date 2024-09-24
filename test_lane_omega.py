@@ -217,7 +217,7 @@ def grid_map_callback(msg):
                                                 origin_x, origin_y, yaw)
         world_point = world_point_x, world_point_y
         def expect_func(x, r):
-            return np.sqrt(r**2 - x**2) - r
+            return r - np.sqrt(r**2 - x**2)
         
         # popt, _ = curve_fit(cubic_func, x_data, y_data)
 
@@ -262,6 +262,7 @@ def odom_callback(msg):
     # 创建 Float32MultiArray 消息
     target_msg = Float32MultiArray()
     target_msg.data.append(y_error)
+    target_msg.data.append(0.0)
     # target_msg.data.append(body_x)
     # target_msg.data.append(body_y)  
 
@@ -318,7 +319,7 @@ def main():
     rospy.init_node('grid_map_subscriber')
     
     # 订阅/grid_map主题
-    rospy.Subscriber('/elevation_mapping/elevation_map_filter', GridMap, grid_map_callback)
+    rospy.Subscriber('/elevation_mapping/elevation_map_raw', GridMap, grid_map_callback)
     rospy.Subscriber('/odom', Odometry, odom_callback)
     # 创建发布器
     global target_point_pub
