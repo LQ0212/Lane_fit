@@ -214,11 +214,12 @@ def grid_map_callback(msg):
         if len(temp_center_points) >= 2:
             if temp_center_points[0, 0] <= 0.7:
                 slope = (temp_center_points[1, 1] - temp_center_points[0, 1]) / (temp_center_points[1, 0] - temp_center_points[0, 0])
-                y_at_x_07 = slope * (0.7 - temp_center_points[0, 0]) + temp_center_points[0 , 1] -0.04
+                y_at_x_07 = slope * (0.7 - temp_center_points[0, 0]) + temp_center_points[0 , 1] -0.025
+                last_target = y_at_x_07
             else:
-                y_at_x_07 = -0.04
+                y_at_x_07 = last_target
         else:
-            y_at_x_07 = -0.04
+            y_at_x_07 = last_target
         world_point_x, world_point_y = transform_to_world_frame(0.7, y_at_x_07,
                                                 origin_x, origin_y, yaw)
         world_point = world_point_x, world_point_y
