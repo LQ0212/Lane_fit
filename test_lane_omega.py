@@ -261,8 +261,12 @@ def odom_callback(msg):
 
     # 创建 Float32MultiArray 消息
     target_msg = Float32MultiArray()
-    target_msg.data.append(y_error)
-    target_msg.data.append(0.0)
+    # print(y_error)
+    data_list = []
+    data_list.append(y_error[0])
+    error_2 = 0.0
+    data_list.append(error_2)
+    target_msg.data = data_list
     # target_msg.data.append(body_x)
     # target_msg.data.append(body_y)  
 
@@ -325,12 +329,12 @@ def main():
     global target_point_pub
     target_point_pub = rospy.Publisher('/target_point', Float32MultiArray, queue_size=10)    
     # 在主线程中设置定时器以更新图形
-    fig = plt.figure()
-    fig.canvas.mpl_connect('key_press_event', on_key)  # 监听键盘事件
-    timer = fig.canvas.new_timer(interval=1000)  # 每隔1秒更新一次图形
-    timer.add_callback(plot_data, None)
-    timer.start()
-    plt.show(block=True)
+    # fig = plt.figure()
+    # fig.canvas.mpl_connect('key_press_event', on_key)  # 监听键盘事件
+    # timer = fig.canvas.new_timer(interval=1000)  # 每隔1秒更新一次图形
+    # timer.add_callback(plot_data, None)
+    # timer.start()
+    # plt.show(block=True)
     rospy.spin()
 
 if __name__ == '__main__':
