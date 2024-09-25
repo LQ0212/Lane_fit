@@ -21,7 +21,7 @@ import threading
 import math
 from scipy.optimize import minimize
 # 定义高度阈值
-HEIGHT_THRESHOLD = 0.04  # 根据实际需求调整
+HEIGHT_THRESHOLD = 0.06  # 根据实际需求调整
 # 定义前方范围宽度
 WIDTH = 0.14
 # 定义采样间隔
@@ -31,10 +31,10 @@ DISTANCE_THRESHOLD = 0.5
 # DBSCAN参数
 EPSILON = 0.03  # 邻域半径
 MIN_SAMPLES = 5  # 最小样本数
-r1 = 7.25  # 内半径
+r1 = 7.40  # 内半径
 r_center = 7.75 # 中心线圆半径
-r2 = 8.25  # 外半径
-EPSILON_X = 0.04  # x方向的邻域半径
+r2 = 8.10  # 外半径
+EPSILON_X = 0.05  # x方向的邻域半径
 EPSILON_Y = 0.07  # y方向的邻域半径
 MIN_SAMPLES_SEC = 3   # 最小样本数
 # 用于存储数据的全局变量
@@ -192,11 +192,11 @@ def grid_map_callback(msg):
             if x_label == -1:
                 continue
             points_with_same_x_label = cluster_center[x_labels == x_label]
-            if len(points_with_same_x_label) != 3:
+            if len(points_with_same_x_label) <= 2:
                 continue
             x_data = points_with_same_x_label[:, 0]
             y_data = points_with_same_x_label[:, 1]
-            sorted_point = sorted(points_with_same_x_label, key=lambda point:point[0])
+            sorted_point = sorted(points_with_same_x_label, key=lambda point:point[1])
             middle_points.append(sorted_point[1])
             # def linear_func(x, m, b):
             #     return m * x + b
@@ -285,9 +285,9 @@ def plot_data(event):
         #     plt.text(point[0], point[1], f'{filtered_heights[i]:.2f}', fontsize=9, ha='center')
         
         # 绘制中心点
-        plt.plot(center_points[:, 0], center_points[:, 1], 'r*', label='Center Points')
+        plt.plot(center_points[:, 0], center_points[:, 1], 'ro', label='Center Points')
         # plt.plot(body_x, body_y, "ro", label = 'Target Point')
-        plt.plot(world_point[0], world_point[1], "ro", label = 'Target Point')
+        # plt.plot(world_point[0], world_point[1], "ro", label = 'Target Point')
         # 绘制簇的中心
         plt.plot(centers[:, 0], centers[:, 1], 'g*', label='Cluster Center Points')
         
@@ -326,7 +326,7 @@ def main():
     # timer.add_callback(plot_data, None)
     # timer.start()
     # plt.show(block=True)
-    rospy.spin()
+    # rospy.spin()
 
 if __name__ == '__main__':
     main()
