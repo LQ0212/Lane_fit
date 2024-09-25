@@ -50,7 +50,6 @@ target_point = [0.0,0.0]
 filtered_y_fit = 0.0
 filtered_slope = 0.0
 alpha = 0.1
-y_error = 0.0
 
 def transform_to_body_frame(x, y, robot_x, robot_y, yaw):
     """
@@ -81,7 +80,7 @@ def transform_to_world_frame(x_body, y_body, robot_x, robot_y, yaw):
     return x_world, y_world
 
 def grid_map_callback(msg):
-    global center_points, filtered_points, curve_params, filtered_heights, yaw_received, centers, world_point, y_error
+    global center_points, filtered_points, curve_params, filtered_heights, yaw_received, centers, world_point
 
     try:
         # 找到'elevation'层的索引
@@ -216,19 +215,8 @@ def grid_map_callback(msg):
         world_point_x, world_point_y = transform_to_world_frame(temp_center_points[0,0], temp_center_points[0,1],
                                                 origin_x, origin_y, yaw)
         world_point = world_point_x, world_point_y
-        def expect_func(x, r):
-            return r - np.sqrt(r**2 - x**2)
         
-        # popt, _ = curve_fit(cubic_func, x_data, y_data)
-
-    #     # 获取拟合参数
-    #     a, b, c = popt
-    #     # def plan_func(x, r):
-    #     #     return np.sqrt(r**2 - x**2) - r
-    #     # 计算横向距离的平均值
-        y_fit = expect_func(x_data, r_center)
-        temp_target_point = x_data, y_fit
-        y_error = y_data - y_fit
+        temp_target_point = world_point
     #     # filtered_y_fit = alpha * y_fit + (1 - alpha) * filtered_y_fit
     #     # filtered_slope = alpha * b + (1 - alpha) * filtered_slope
         
@@ -245,7 +233,7 @@ def grid_map_callback(msg):
         print("未找到符合条件的点")
 
 def odom_callback(msg):
-    global world_point, current_yaw, yaw_received, body_x, body_y, y_error
+    global world_point, current_yaw, yaw_received, body_x, body_y
     position = msg.pose.pose.position
     orientation = msg.pose.pose.orientation
 
@@ -258,12 +246,16 @@ def odom_callback(msg):
     # 计算点相对机身坐标系的位置
     world_x, world_y = world_point
     body_x, body_y = transform_to_body_frame(world_x, world_y, position.x, position.y, current_yaw)
-
+    def expect_func(x, r):
+        return r - np.sqrt(r**2 - x**2)
+        
+    y_fit = expect_func(body_x, r_center)
+    y_error = body_y - y_fit - 0.01
     # 创建 Float32MultiArray 消息
     target_msg = Float32MultiArray()
     # print(y_error)
     data_list = []
-    data_list.append(y_error[0])
+    data_list.append(y_error)
     error_2 = 0.0
     data_list.append(error_2)
     target_msg.data = data_list
@@ -293,7 +285,6 @@ def plot_data(event):
         
         # 绘制中心点
         # plt.scatter(center_points[:, 0], center_points[:, 1], c='green', label='Center Points')
-        plt.plot(target_point[0], target_point[1], "r*", label = 'Except Point')
         plt.plot(body_x, body_y, "ro", label = 'Target Point')
         # 绘制簇的中心
         plt.plot(centers[:, 0], centers[:, 1], 'g*', label='Cluster Center Points')
