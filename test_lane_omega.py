@@ -27,7 +27,7 @@ INTERVAL = np.radians(2.1)
 # 定义距离阈值
 DISTANCE_THRESHOLD = 0.5
 # DBSCAN参数
-EPSILON = 0.06  # 邻域半径
+EPSILON = 0.03  # 邻域半径
 MIN_SAMPLES = 6  # 最小样本数
 r1 = 7.25  # 内半径
 r_center = 7.75 # 中心线圆半径

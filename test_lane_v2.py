@@ -34,7 +34,7 @@ MIN_SAMPLES = 5  # 最小样本数
 r1 = 7.25  # 内半径
 r_center = 7.75 # 中心线圆半径
 r2 = 8.25  # 外半径
-EPSILON_X = 0.05  # x方向的邻域半径
+EPSILON_X = 0.04  # x方向的邻域半径
 EPSILON_Y = 0.07  # y方向的邻域半径
 MIN_SAMPLES_SEC = 3   # 最小样本数
 # 用于存储数据的全局变量
@@ -48,7 +48,7 @@ yaw_received = False
 # 互斥锁以保证线程安全
 lock = threading.Lock()
 yaw_lock = threading.Lock()
-
+last_target = 0.0
 #初始化滤波值设置滤波系数
 filtered_y_fit = 0.0
 filtered_slope = 0.0
@@ -83,7 +83,7 @@ def transform_to_world_frame(x_body, y_body, robot_x, robot_y, yaw):
     return x_world, y_world
 
 def grid_map_callback(msg):
-    global center_points, filtered_points, curve_params, filtered_heights, yaw_received, centers, world_point
+    global center_points, filtered_points, curve_params, filtered_heights, yaw_received, centers, world_point, last_target
 
     try:
         # 找到'elevation'层的索引
@@ -205,13 +205,26 @@ def grid_map_callback(msg):
             # x_middle = (x_data.min() + x_data.max()) / 2
             # y_middle = linear_func(x_middle, m, b)
             # middle_points.append((x_middle, y_middle))
+        middle_points = np.array(middle_points)
     if middle_points:
-        min_x_point = min(middle_points, key=lambda point:point[0])
-        world_point_x, world_point_y = transform_to_world_frame(min_x_point[0], min_x_point[1],
-                                                                origin_x, origin_y, yaw)
+        sorted_middle_point = sorted(middle_points, key=lambda point:point[0])
+        if len(sorted_middle_point) >= 2:
+            if sorted_middle_point[0, 0] <= 0.6:
+                slope = (sorted_middle_point[1, 1] - sorted_middle_point[0, 1]) / (sorted_middle_point[1, 0] - sorted_middle_point[0, 0])
+                y_at_x_07 = slope * (0.6 - sorted_middle_point[0, 0]) + sorted_middle_point[0 , 1]
+                last_target = y_at_x_07
+            else:
+                y_at_x_07 = last_target
+        else:
+            y_at_x_07 = last_target
+        world_point_x, world_point_y = transform_to_world_frame(0.6, y_at_x_07,
+                                                origin_x, origin_y, yaw)
         world_point = world_point_x, world_point_y
+        # min_x_point = min(middle_points, key=lambda point:point[0])
+        # world_point_x, world_point_y = transform_to_world_frame(min_x_point[0], min_x_point[1],
+        #                                                         origin_x, origin_y, yaw)
+        # world_point = world_point_x, world_point_y
         with lock:
-            middle_points = np.array(middle_points)
             center_points = middle_points
             centers = cluster_center
     else:
