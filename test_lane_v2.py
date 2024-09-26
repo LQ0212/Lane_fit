@@ -192,7 +192,7 @@ def grid_map_callback(msg):
             if x_label == -1:
                 continue
             points_with_same_x_label = cluster_center[x_labels == x_label]
-            if len(points_with_same_x_label) <= 2:
+            if len(points_with_same_x_label) != 3:
                 continue
             x_data = points_with_same_x_label[:, 0]
             y_data = points_with_same_x_label[:, 1]
@@ -326,7 +326,7 @@ def main():
     # timer.add_callback(plot_data, None)
     # timer.start()
     # plt.show(block=True)
-    # rospy.spin()
+    rospy.spin()
 
 if __name__ == '__main__':
     main()
