@@ -315,17 +315,17 @@ def main():
     
     # 订阅/grid_map主题
     rospy.Subscriber('/elevation_mapping/elevation_map_raw', GridMap, grid_map_callback)
-    # rospy.Subscriber('/odom', Odometry, odom_callback)
+    rospy.Subscriber('/odom', Odometry, odom_callback)
     # 创建发布器
     global target_point_pub
     target_point_pub = rospy.Publisher('/target_point', Float32MultiArray, queue_size=10)    
     # 在主线程中设置定时器以更新图形
-    fig = plt.figure()
-    fig.canvas.mpl_connect('key_press_event', on_key)  # 监听键盘事件
-    timer = fig.canvas.new_timer(interval=1000)  # 每隔1秒更新一次图形
-    timer.add_callback(plot_data, None)
-    timer.start()
-    plt.show(block=True)
+    # fig = plt.figure()
+    # fig.canvas.mpl_connect('key_press_event', on_key)  # 监听键盘事件
+    # timer = fig.canvas.new_timer(interval=1000)  # 每隔1秒更新一次图形
+    # timer.add_callback(plot_data, None)
+    # timer.start()
+    # plt.show(block=True)
     rospy.spin()
 
 if __name__ == '__main__':
