@@ -212,7 +212,7 @@ def grid_map_callback(msg):
         if len(sorted_middle_point) >= 2:
             if sorted_middle_point[0, 0] <= 0.6:
                 slope = (sorted_middle_point[1, 1] - sorted_middle_point[0, 1]) / (sorted_middle_point[1, 0] - sorted_middle_point[0, 0])
-                y_at_x_07 = slope * (0.6 - sorted_middle_point[0, 0]) + sorted_middle_point[0 , 1]
+                y_at_x_07 = slope * (0.6 - sorted_middle_point[0, 0]) + sorted_middle_point[0 , 1] - 0.025
                 last_target = y_at_x_07
             else:
                 y_at_x_07 = last_target
