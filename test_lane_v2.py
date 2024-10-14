@@ -21,7 +21,7 @@ import threading
 import math
 from scipy.optimize import minimize
 # 定义高度阈值
-HEIGHT_THRESHOLD = 0.07# 根据实际需求调整
+HEIGHT_THRESHOLD = 0.04# 根据实际需求调整
 # 定义前方范围宽度
 WIDTH = 0.14
 # 定义采样间隔
@@ -30,7 +30,7 @@ INTERVAL = np.radians(2.1)
 DISTANCE_THRESHOLD = 0.5
 # DBSCAN参数
 EPSILON = 0.03  # 邻域半径
-MIN_SAMPLES = 5  # 最小样本数
+MIN_SAMPLES = 7  # 最小样本数
 r1 = 7.40  # 内半径
 r_center = 7.75 # 中心线圆半径
 r2 = 8.10  # 外半径
@@ -212,7 +212,7 @@ def grid_map_callback(msg):
         if len(sorted_middle_point) >= 2:
             if sorted_middle_point[0, 0] <= 0.8:
                 slope = (sorted_middle_point[1, 1] - sorted_middle_point[0, 1]) / (sorted_middle_point[1, 0] - sorted_middle_point[0, 0])
-                y_at_x_07 = slope * (0.8 - sorted_middle_point[0, 0]) + sorted_middle_point[0 , 1] - 1.0
+                y_at_x_07 = slope * (0.8 - sorted_middle_point[0, 0]) + sorted_middle_point[0 , 1] - 0.02
                 last_target = y_at_x_07
             else:
                 y_at_x_07 = last_target
@@ -220,8 +220,9 @@ def grid_map_callback(msg):
                                                 origin_x, origin_y, yaw)
 
         else:
-            world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1],
+            world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.015,
                                                 origin_x, origin_y, yaw)
+        # world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.02, origin_x, origin_y, yaw)
         world_point = world_point_x, world_point_y
         # min_x_point = min(middle_points, key=lambda point:point[0])
         # world_point_x, world_point_y = transform_to_world_frame(min_x_point[0], min_x_point[1],
@@ -231,7 +232,7 @@ def grid_map_callback(msg):
             center_points = middle_points
             centers = cluster_center
     else:
-        world_point = transform_to_world_frame(0.6, 0, origin_x, origin_y, yaw)
+        world_point = transform_to_world_frame(0, 0, origin_x, origin_y, yaw)
         print("未找到符合条件的点")
 
 def odom_callback(msg):
@@ -323,12 +324,12 @@ def main():
     global target_point_pub
     target_point_pub = rospy.Publisher('/target_point', Float32MultiArray, queue_size=10)    
     # 在主线程中设置定时器以更新图形
-    fig = plt.figure()
-    fig.canvas.mpl_connect('key_press_event', on_key)  # 监听键盘事件
-    timer = fig.canvas.new_timer(interval=1000)  # 每隔1秒更新一次图形
-    timer.add_callback(plot_data, None)
-    timer.start()
-    plt.show(block=True)
+    # fig = plt.figure()
+    # fig.canvas.mpl_connect('key_press_event', on_key)  # 监听键盘事件
+    # timer = fig.canvas.new_timer(interval=1000)  # 每隔1秒更新一次图形
+    # timer.add_callback(plot_data, None)
+    # timer.start()
+    # plt.show(block=True)
     rospy.spin()
 
 if __name__ == '__main__':
