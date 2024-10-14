@@ -21,7 +21,7 @@ import threading
 import math
 from scipy.optimize import minimize
 # 定义高度阈值
-HEIGHT_THRESHOLD = 0.04  # 根据实际需求调整
+HEIGHT_THRESHOLD = 0.05  # 根据实际需求调整
 # 定义前方范围宽度
 WIDTH = 0.14
 # 定义采样间隔
@@ -229,6 +229,7 @@ def grid_map_callback(msg):
             center_points = middle_points
             centers = cluster_center
     else:
+        world_point = transform_to_world_frame(0.6, 0, origin_x, origin_y, yaw)
         print("未找到符合条件的点")
 
 def odom_callback(msg):
