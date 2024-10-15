@@ -30,7 +30,7 @@ INTERVAL = np.radians(2.1)
 DISTANCE_THRESHOLD = 0.5
 # DBSCAN参数
 EPSILON = 0.03  # 邻域半径
-MIN_SAMPLES = 7  # 最小样本数
+MIN_SAMPLES = 10  # 最小样本数
 r1 = 7.40  # 内半径
 r_center = 7.75 # 中心线圆半径
 r2 = 8.10  # 外半径
