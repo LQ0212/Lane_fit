@@ -30,7 +30,7 @@ INTERVAL = np.radians(2.1)
 DISTANCE_THRESHOLD = 0.5
 # DBSCAN参数
 EPSILON = 0.03  # 邻域半径
-MIN_SAMPLES = 10  # 最小样本数
+MIN_SAMPLES = 5  # 最小样本数
 r1 = 7.40  # 内半径
 r_center = 7.75 # 中心线圆半径
 r2 = 8.10  # 外半径
@@ -128,8 +128,8 @@ def grid_map_callback(msg):
             # cc_x = origin_x - r_center * math.sin(yaw)
             # cc_y = origin_y - r_center * math.cos(yaw)
             # 计算点到圆心的距离
-            if body_x < 0.3:
-                break
+            # if body_x < 0.3:
+            #     break
             distance_to_center = np.sqrt((body_x) ** 2 + (body_y - r_center) ** 2)
             # 筛选在圆环范围内且高度超过阈值的点
             if r1 <= distance_to_center <= r2 and elevation_array[i, j] > HEIGHT_THRESHOLD:
@@ -146,7 +146,7 @@ def grid_map_callback(msg):
                 yaw_min = yaw_min if yaw_min >= 0 else yaw_min + 2 * np.pi
                 yaw_max = yaw_max if yaw_max >= 0 else yaw_max + 2 * np.pi
                 # 检查点的角度是否在yaw±90°的范围内
-                if (yaw_min <= angle_to_center <= yaw_max) or (yaw_min > yaw_max and (angle_to_center <= yaw_max or angle_to_center >= yaw_min)):
+                if (yaw_min <= angle_to_center <= yaw_max) or (yaw_min > yaw_max and (angle_to_center <= yaw_max or angle_to_center >= yaw_min) ):
                     temp_filtered_points.append((body_x, body_y))
                     temp_filtered_heights.append(elevation_array[i, j]) 
 
@@ -212,7 +212,7 @@ def grid_map_callback(msg):
         if len(sorted_middle_point) >= 2:
             if sorted_middle_point[0, 0] <= 0.8:
                 slope = (sorted_middle_point[1, 1] - sorted_middle_point[0, 1]) / (sorted_middle_point[1, 0] - sorted_middle_point[0, 0])
-                y_at_x_07 = slope * (0.8 - sorted_middle_point[0, 0]) + sorted_middle_point[0 , 1] - 0.02
+                y_at_x_07 = slope * (0.8 - sorted_middle_point[0, 0]) + sorted_middle_point[0 , 1] - 0.025
                 last_target = y_at_x_07
             else:
                 y_at_x_07 = last_target
@@ -220,7 +220,7 @@ def grid_map_callback(msg):
                                                 origin_x, origin_y, yaw)
 
         else:
-            world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.015,
+            world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.02,
                                                 origin_x, origin_y, yaw)
         # world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.02, origin_x, origin_y, yaw)
         world_point = world_point_x, world_point_y
@@ -324,12 +324,12 @@ def main():
     global target_point_pub
     target_point_pub = rospy.Publisher('/target_point', Float32MultiArray, queue_size=10)    
     # 在主线程中设置定时器以更新图形
-    # fig = plt.figure()
-    # fig.canvas.mpl_connect('key_press_event', on_key)  # 监听键盘事件
-    # timer = fig.canvas.new_timer(interval=1000)  # 每隔1秒更新一次图形
-    # timer.add_callback(plot_data, None)
-    # timer.start()
-    # plt.show(block=True)
+    fig = plt.figure()
+    fig.canvas.mpl_connect('key_press_event', on_key)  # 监听键盘事件
+    timer = fig.canvas.new_timer(interval=1000)  # 每隔1秒更新一次图形
+    timer.add_callback(plot_data, None)
+    timer.start()
+    plt.show(block=True)
     rospy.spin()
 
 if __name__ == '__main__':
