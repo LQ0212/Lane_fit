@@ -146,7 +146,7 @@ def grid_map_callback(msg):
                 yaw_min = yaw_min if yaw_min >= 0 else yaw_min + 2 * np.pi
                 yaw_max = yaw_max if yaw_max >= 0 else yaw_max + 2 * np.pi
                 # 检查点的角度是否在yaw±90°的范围内
-                if (yaw_min <= angle_to_center <= yaw_max) or (yaw_min > yaw_max and (angle_to_center <= yaw_max or angle_to_center >= yaw_min) ):
+                if (yaw_min <= angle_to_center <= yaw_max) or (yaw_min > yaw_max and (angle_to_center <= yaw_max or angle_to_center >= yaw_min) and body_x > 0.3 ):
                     temp_filtered_points.append((body_x, body_y))
                     temp_filtered_heights.append(elevation_array[i, j]) 
 
