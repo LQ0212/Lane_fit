@@ -30,10 +30,10 @@ INTERVAL = np.radians(2.1)
 DISTANCE_THRESHOLD = 0.5
 # DBSCAN参数
 EPSILON = 0.03  # 邻域半径
-MIN_SAMPLES = 5  # 最小样本数
-r1 = 7.40  # 内半径
+MIN_SAMPLES = 10  # 最小样本数
+r1 = 7.45  # 内半径
 r_center = 7.75 # 中心线圆半径
-r2 = 8.10  # 外半径
+r2 = 8.05  # 外半径
 EPSILON_X = 0.05  # x方向的邻域半径
 EPSILON_Y = 0.07  # y方向的邻域半径
 MIN_SAMPLES_SEC = 3   # 最小样本数
@@ -122,33 +122,35 @@ def grid_map_callback(msg):
     for i in range(rows):
         for j in range(cols):
             # 计算当前点的实际位置
+            if np.isnan(elevation_array[i,j]) or elevation_array[i,j] < HEIGHT_THRESHOLD:
+                continue 
             world_y = (rows-i) * resolution + origin_y - length_y/2
             world_x = (cols-j) * resolution + origin_x - length_x/2
             body_x, body_y = transform_to_body_frame(world_x, world_y, origin_x, origin_y, yaw)
             # cc_x = origin_x - r_center * math.sin(yaw)
             # cc_y = origin_y - r_center * math.cos(yaw)
             # 计算点到圆心的距离
-            # if body_x < 0.3:
-            #     break
+            if body_x < 0.3:
+                continue
             distance_to_center = np.sqrt((body_x) ** 2 + (body_y - r_center) ** 2)
             # 筛选在圆环范围内且高度超过阈值的点
-            if r1 <= distance_to_center <= r2 and elevation_array[i, j] > HEIGHT_THRESHOLD:
-                angle_to_center = np.arctan2(world_y - origin_y, world_x - origin_x)
+            if r1 <= distance_to_center <= r2 :
+                # angle_to_center = np.arctan2(world_y - origin_y, world_x - origin_x)
 
-                # 将角度转换到 [0, 2π] 范围内
-                angle_to_center = angle_to_center if angle_to_center >= 0 else angle_to_center + 2 * np.pi
+                # # 将角度转换到 [0, 2π] 范围内
+                # angle_to_center = angle_to_center if angle_to_center >= 0 else angle_to_center + 2 * np.pi
 
-                # 计算yaw的范围
-                yaw_min = yaw - np.pi / 2
-                yaw_max = yaw + np.pi / 2
+                # # 计算yaw的范围
+                # yaw_min = yaw - np.pi / 2
+                # yaw_max = yaw + np.pi / 2
 
-                # 将yaw的范围转换到 [0, 2π] 范围内
-                yaw_min = yaw_min if yaw_min >= 0 else yaw_min + 2 * np.pi
-                yaw_max = yaw_max if yaw_max >= 0 else yaw_max + 2 * np.pi
-                # 检查点的角度是否在yaw±90°的范围内
-                if (yaw_min <= angle_to_center <= yaw_max) or (yaw_min > yaw_max and (angle_to_center <= yaw_max or angle_to_center >= yaw_min) and body_x > 0.3 ):
-                    temp_filtered_points.append((body_x, body_y))
-                    temp_filtered_heights.append(elevation_array[i, j]) 
+                # # 将yaw的范围转换到 [0, 2π] 范围内
+                # yaw_min = yaw_min if yaw_min >= 0 else yaw_min + 2 * np.pi
+                # yaw_max = yaw_max if yaw_max >= 0 else yaw_max + 2 * np.pi
+                # # 检查点的角度是否在yaw±90°的范围内
+                # if (yaw_min <= angle_to_center <= yaw_max) or (yaw_min > yaw_max and (angle_to_center <= yaw_max or angle_to_center >= yaw_min) and body_x > 0.3 ):
+                temp_filtered_points.append((body_x, body_y))
+                temp_filtered_heights.append(elevation_array[i, j]) 
 
     if temp_filtered_points:
         # 对所有符合条件的点进行密度聚类
@@ -212,7 +214,7 @@ def grid_map_callback(msg):
         if len(sorted_middle_point) >= 2:
             if sorted_middle_point[0, 0] <= 0.8:
                 slope = (sorted_middle_point[1, 1] - sorted_middle_point[0, 1]) / (sorted_middle_point[1, 0] - sorted_middle_point[0, 0])
-                y_at_x_07 = slope * (0.8 - sorted_middle_point[0, 0]) + sorted_middle_point[0 , 1] - 0.025
+                y_at_x_07 = slope * (0.8 - sorted_middle_point[0, 0]) + sorted_middle_point[0 , 1] - 0.030
                 last_target = y_at_x_07
             else:
                 y_at_x_07 = last_target
@@ -220,7 +222,7 @@ def grid_map_callback(msg):
                                                 origin_x, origin_y, yaw)
 
         else:
-            world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.02,
+            world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.030,
                                                 origin_x, origin_y, yaw)
         # world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.02, origin_x, origin_y, yaw)
         world_point = world_point_x, world_point_y
