@@ -1,0 +1,4 @@
+<launch>  
+    <!-- 启动一个名为my_python_script的节点，该节点运行my_python_script.py脚本 -->  
+    <node name="lane_fit" pkg="lane_fit" type="test_lane_v2.py" output="screen"/>  
+</launch>
