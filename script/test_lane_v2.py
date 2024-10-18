@@ -29,7 +29,7 @@ INTERVAL = np.radians(2.1)
 # 定义距离阈值
 DISTANCE_THRESHOLD = 0.5
 # DBSCAN参数
-EPSILON = 0.03  # 邻域半径
+EPSILON = 0.02  # 邻域半径
 MIN_SAMPLES = 10  # 最小样本数
 r1 = 7.45  # 内半径
 r_center = 7.75 # 中心线圆半径
@@ -130,7 +130,7 @@ def grid_map_callback(msg):
             # cc_x = origin_x - r_center * math.sin(yaw)
             # cc_y = origin_y - r_center * math.cos(yaw)
             # 计算点到圆心的距离
-            if body_x < 0.3:
+            if body_x < 0.3 or body_y < -0.75 or body_y > 0.75:
                 continue
             distance_to_center = np.sqrt((body_x) ** 2 + (body_y - r_center) ** 2)
             # 筛选在圆环范围内且高度超过阈值的点
@@ -222,7 +222,7 @@ def grid_map_callback(msg):
                                                 origin_x, origin_y, yaw)
 
         else:
-            world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.030,
+            world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.025,
                                                 origin_x, origin_y, yaw)
         # world_point_x, world_point_y = transform_to_world_frame(sorted_middle_point[0, 0], sorted_middle_point[0, 1]-0.02, origin_x, origin_y, yaw)
         world_point = world_point_x, world_point_y
@@ -321,17 +321,17 @@ def main():
     
     # 订阅/grid_map主题
     rospy.Subscriber('/elevation_mapping/elevation_map_raw', GridMap, grid_map_callback)
-    rospy.Subscriber('/odom', Odometry, odom_callback)
+    rospy.Subscriber('/odom_lane', Odometry, odom_callback)
     # 创建发布器
     global target_point_pub
     target_point_pub = rospy.Publisher('/target_point', Float32MultiArray, queue_size=10)    
     # 在主线程中设置定时器以更新图形
-    fig = plt.figure()
-    fig.canvas.mpl_connect('key_press_event', on_key)  # 监听键盘事件
-    timer = fig.canvas.new_timer(interval=1000)  # 每隔1秒更新一次图形
-    timer.add_callback(plot_data, None)
-    timer.start()
-    plt.show(block=True)
+    # fig = plt.figure()
+    # fig.canvas.mpl_connect('key_press_event', on_key)  # 监听键盘事件
+    # timer = fig.canvas.new_timer(interval=1000)  # 每隔1秒更新一次图形
+    # timer.add_callback(plot_data, None)
+    # timer.start()
+    # plt.show(block=True)
     rospy.spin()
 
 if __name__ == '__main__':
